@@ -15,7 +15,9 @@ class ListaDeFilmes:
         self.head=None
     
     def inserir_filme(self,titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao):
+        
         new_filme=Node(titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao)
+
         if self.head is None:
             self.head=new_filme
             print("Filme adicionado com sucesso!")
@@ -61,7 +63,6 @@ class ListaDeFilmes:
         return
 
     def remover_filme(self,codigo):
-        codigo=str(input("Digite o código do filme que deseja remover: "))
         if self.head is None:
             print("Lista vazia")
             return
@@ -79,7 +80,7 @@ class ListaDeFilmes:
     def ordenar_por_genero(self):
         if self.head is None or self.head.next is None:
             return
-        trocou=True
+        trocou=True #bubble short para a ordenação
         while trocou:
             trocou=False
             current=self.head
@@ -94,6 +95,11 @@ class ListaDeFilmes:
                     current.situacao,current.next.situacao=current.next.situacao,current.situacao
                     trocou=True       
                 current=current.next
+        print("\nFilmes ordenados por gênero:")
+        current=self.head
+        while current is not None: # para mostrar a lista ordenada
+            print(f"{current.genero}: {current.titulo}")
+            current=current.next
 
 class NodeFila:
     def __init__(self,cliente):
@@ -136,8 +142,8 @@ class FilaDeReservas: #em adicionar, vai chamar cliente, pois ele que vai ficar 
         return self._size
     
     def is_empty(self):
-        self._size==0
-        return        
+        return self._size==0
+               
 
     def mostrar_filmes_reservas(self):
         filmes=[]
@@ -163,6 +169,7 @@ class SistemaClientes:
         if cpf in self.clientes:
             print("Usuário já cadastrado")
         else:
+
             self.clientes[cpf]=Cliente(nome,idade,telefone,cpf)
             print("Cliente adicionado com sucesso")
 
@@ -170,8 +177,10 @@ class SistemaClientes:
         if cpf in self.clientes:
             cliente=self.clientes[cpf]
             print(f"Nome: {cliente.nome}/idade:{cliente.idade}/telefone:{cliente.telefone}")
+            return cliente
         else:
             print("Cliente não encontrado")
+            return
     
     def alugar_filme(self,lista_filmes,cpf,titulo,codigo): #lista_filmes é o objeto que será criado da classe ListaDeFilmes
         cliente=self.buscar_cliente(cpf)
@@ -184,11 +193,12 @@ class SistemaClientes:
                 if cliente.idade>=current.classificacao_indicativa:
                     if current.situacao=="Disponível":
                         current.situacao= "Alugado"
+                        cliente.filmes_alugados.append(current) #adicionando a lista de filmes alugados do cliente
                         print(f"{cliente.nome} alugou o filme '{current.titulo}'-({current.codigo}) com sucesso!")
                     else:
                         print(f"{current.titulo} não está disponível")
-                        print(f"Adicionando para a fila de reservas para o cliente {current.nome}")
-                        current.fila_reservas.adicionar_na_fila(cliente)
+                        print(f"Adicionando o cliente {cliente.nome} para a lista de reservas do filme '{current.titulo}'")
+                        current.fila_reservas.adicionar_na_fila(cliente) #adicionando o cliente na fila de reservas
                 else:
                     print("Você não possui idade para a classificação indicativa desse filme. Aluguel cancelado")
                 return
@@ -196,13 +206,13 @@ class SistemaClientes:
         print("Filme não encontrado")
     
     def devolver_filme(self,lista_filmes,cpf,titulo,codigo):
-        cliente=self.buscar_filme(cpf)
+        cliente=self.buscar_cliente(cpf)
         current=lista_filmes.head
         while current is not None:
             if current.titulo==titulo and current.codigo==codigo:
                 if current in cliente.filmes_alugados:
                     cliente.filmes_alugados.remove(current)
-                    
+
                     if not current.fila_reservas.is_empty():
                         proximo_cliente=current.fila_reservas.retirar_da_fila()
                         proximo_cliente.filmes_alugados.append(current)
@@ -217,20 +227,147 @@ class SistemaClientes:
             current=current.next
         print("Filme não encontrado")
 
+class Locadora: #Classe Principal que chama os métodos para a iteração com o usuário
+    def __init__(self):
+        self.lista = ListaDeFilmes()        # a lista única de filmes
+        self.sistema = SistemaClientes()    # sistema único de clientes
+        return
+    
+    def menu_cliente(self):
+        while True:
+            print("   *      MENU      * ")
+            print("A - Alugar filme" \
+            "      L - Listar filmes por gênero" \
+            "      D - Devolver filme" \
+            "      B - Buscar filmes" \
+            "      S - Sair" \
+            "       ")
+            #sistema2=SistemaClientes()
+            #listafilme=ListaDeFilmes()
+            
+            opcaocliente=str(input("Digite uma opção para ter acesso as funções: "))
+            if opcaocliente=="A" or opcaocliente=="a":
+                titulo=str(input("Digite o título do filme: "))
+                cpf=str(input("Digite seu CPF: "))
+                codigo=str(input("Digite o código do filme:"))
+                alugar=self.sistema.alugar_filme(self.lista,cpf,titulo,codigo)
 
+            elif opcaocliente=="l" or opcaocliente=="L":
+                genero=str(input("Digite o gênero que você deseja listar todos os filmes: "))
+                listar=self.lista.listar_por_genero()
 
+            elif opcaocliente=="d" or opcaocliente=="D":
+                cpf1=str(input("Digite seu CPF: "))
+                titulo1=str(input("Digite o título do filme que deseja devolver: "))
+                codigo1=str(input("Código do filme: "))
+                devolver=self.sistema.devolver_filme(self.lista,cpf1,titulo1,codigo1) 
 
+            elif opcaocliente=="b" or opcaocliente=="B":
+                titulo2=str(input("Digite o título do livro que deseja pesquisar: "))
+                genero2=str(input("Digite o gênero do filme: "))
+                buscarfilme=self.lista.buscar_filme(titulo2,genero2)
+            
+            elif opcaocliente== "S" or opcaocliente=="s":
+                print("Saindo do sitema...")
+                break
+
+            else:
+                print("Opção inválida")
+
+    def menu_funcionario(self):
+        print(" *           Menu - Sistema interno            * ")
+        print("I - Inserir filme" \
+        "      R - Remover filme " \
+        "      B - Buscar cliente " \
+        "      L - Buscar livros por gênero" \
+        "      LI - Listar filmes" \
+        "      O - Ordenar por gênero" \
+        "      M -  Menu cliente" \
+        "      S - Sair")
         
 
+    def inicio (self):
+        print(" ----------------------------------------------")
+        print("                 LOCADORA PH                   ")
+        print("-----------------------------------------------")
 
+        entrada=str(input("Bem vindo!Já possui cadastro?[S/N]"))
+        if entrada =="S" or entrada=="s":
+            usuario=str(input("Digite seu CPF: "))
+            if usuario== "139778": #Se tiver esse cpf é funcionário da livraria
+                
+                while True:
+                    #lista=ListaDeFilmes()
+                    #sistema=SistemaClientes()
+                    funcionario=self.menu_funcionario()
+                    opcaofuncionario=str(input(" Escolha uma opção para navegar no Sistema da Locadora: "))
+                    if opcaofuncionario== "I" or opcaofuncionario=="i":
+                        print( "           CADASTRO DE FILMES         ")
+                        titulo=str(input(" Insira o Título: "))
+                        genero=str(input(" Insira o gênero: "))
+                        diretor=str(input(" Insira o diretor: "))
+                        classificacao_indicativa=int(input(" Insira a classificação Indicativa: "))
+                        ano=int(input(" Insira o ano de lançamento: "))
+                        codigo=str(input(" Insira o código do filme: "))
+                        situacao=str(input(" Situação do filme: "))
+                        inserir=self.lista.inserir_filme(titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao)
+                    
+                    elif opcaofuncionario== "R" or opcaofuncionario=="r":
+                        codigo=str(input("Digite o código do filme que deseja remover: "))
+                        remover=self.lista.remover_filme(codigo)
 
+                    elif opcaofuncionario== "B" or opcaofuncionario=="b":
+                        cpf=str(input("Digite o CPF do cliente que deseja pesquisar: "))
+                        buscar=sistema.buscar_cliente(cpf)
 
-lista=ListaDeFilmes()
+                    elif opcaofuncionario=="l" or opcaofuncionario== "L":
+                        titulo1=str(input("Digite o Título do filme:"))
+                        genero=str(input("Digite o gênero do filme: "))
+                        buscarlivro=self.lista.buscar_filme(titulo1,genero)
+
+                    elif opcaofuncionario== "LI" or opcaofuncionario=="lI" or opcaofuncionario=="li" or opcaofuncionario=="Li":
+                        mostrar=self.lista.mostrar()
+                    
+                    elif opcaofuncionario== "O" or opcaofuncionario=="o":
+                        ordenar=self.lista.ordenar_por_genero()# ver pq n tá fazendo
+
+                    elif opcaofuncionario== "m" or opcaofuncionario=="M":
+                        menu=self.menu_cliente()
+                    
+                    elif opcaofuncionario=="S" or opcaofuncionario=="s":
+                        print("Saindo do sistema...")
+                        break
+                    else:
+                        print("Opção inválida")
+
+            if usuario in self.sistema.clientes:
+                self.menu_cliente()
+        elif entrada =="N" or entrada =="n":
+            sistema=SistemaClientes()
+            print("               CADASTRO DE USUÁRIO           ")
+            nome=str(input("Digite seu nome e sobrenome: "))
+            idade=int(input("Digite sua idade: "))
+            telefone=str(input("Digite seu número de celular para contato: "))
+            cpf=str(input("Digite seu CPF: "))
+            cliente1=sistema.adicionar_cliente(nome,idade,telefone,cpf)
+            cliente1=self.menu_cliente()
+        else:
+            print("Opção inválida")
+
+sistema3= SistemaClientes()
+sistema3.adicionar_cliente("Paola Coutinho", 19,"998668644","139778")
+
+if __name__ == "__main__":
+    sistema_locadora = Locadora()
+    sistema_locadora.inicio()
+    
+
+"""lista=ListaDeFilmes()
 lista.inserir_filme("Paola e as aventuras","romance", "Lucas", 19,2023,"1234", "Disponivel")
 lista.inserir_filme("o medo","Terror","Joao", 18,2001,"0987","Disponivel")
 lista.inserir_filme("Velozes e Furiosos","Ação","Homem", 16,2010,"6789","Disponivel")
 lista.inserir_filme("Amor","Drama","austin",10,2011,"6543","Disponivel")
-lista.inserir_filme("socorro","Terror","ain",18,2021,"8726","Reservado")
+lista.inserir_filme("socorro","Terror","ain",18,2021,"8726","Alugado")
 
 print("Antes de ordenar por genero")
 lista.mostrar()
@@ -241,6 +378,6 @@ lista.mostrar()
 lista.ordenar_por_genero()
 print("-------------------------------")
 print("Depois de ordenar por genero")
-lista.mostrar()
+lista.mostrar()"""
 
 
