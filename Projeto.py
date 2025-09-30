@@ -329,7 +329,7 @@ class Locadora: #Classe Principal que chama os métodos para a iteração com o 
                         mostrar=self.lista.mostrar()
                     
                     elif opcaofuncionario== "O" or opcaofuncionario=="o":
-                        ordenar=self.lista.ordenar_por_genero()# ver pq n tá fazendo
+                        ordenar=self.lista.ordenar_por_genero()
 
                     elif opcaofuncionario== "m" or opcaofuncionario=="M":
                         menu=self.menu_cliente()
@@ -379,5 +379,6 @@ lista.ordenar_por_genero()
 print("-------------------------------")
 print("Depois de ordenar por genero")
 lista.mostrar()"""
+
 
 
