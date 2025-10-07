@@ -98,7 +98,7 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
             if (lista_ordenada is None or 
             current.genero.lower() < lista_ordenada.genero.lower() or
             (current.genero.lower() == lista_ordenada.genero.lower() and 
-             current.titulo.lower() < lista_ordenada.titulo.lower())): #vai comparar os gêneros do nó do current para o nó da lista ordenada
+             current.titulo.lower() < lista_ordenada.titulo.lower())): #vai comparar os gêneros do nó do current para o nó da lista ordenada e se mais de um filme tiver o mesmo GÊNERO, vai ordenar pelo titulo
                 # insere no início
                 current.next = lista_ordenada #o nó atual aponta para o antigo inicio
                 lista_ordenada = current #atualiza o novo início
@@ -484,4 +484,5 @@ if __name__ == "__main__": #Para rodar o programa
     sistema_locadora.sistema.adicionar_cliente("Paola Coutinho", 19, "998668644", "139778") #Funcionário 
     sistema_locadora.inicio()
     
+
 
