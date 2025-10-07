@@ -467,6 +467,9 @@ class Locadora:
 
             elif usuario in self.sistema.clientes:
                 self.menu_cliente() #vai mostrar o menu dos clientes
+            else:
+                print("Cliente não encontrado, tente novamente")
+                self.inicio()
         elif entrada.lower()=="n": #vai fazer o cadastro do usuário
             print()
             print("               CADASTRO DE USUÁRIO           ")
