@@ -97,16 +97,16 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
             # Inserção na lista ordenada
             if lista_ordenada is None or current.genero.lower() < lista_ordenada.genero.lower(): #vai comparar os gêneros do nó do current para o nó da lista ordenada
                 # insere no início
-                current.next = lista_ordenada
-                lista_ordenada = current
-            else:
+                current.next = lista_ordenada #o nó atual aponta para o antigo inicio
+                lista_ordenada = current #atualiza o novo início
+            else: #inserção no meio ou final
                 # percorre a lista ordenada até achar o ponto de inserção
-                temp = lista_ordenada
-                while (temp.next is not None and 
-                    temp.next.genero.lower() < current.genero.lower()):
-                    temp = temp.next
-                current.next = temp.next
-                temp.next = current
+                temporario = lista_ordenada #temporario é um ponteiro temporario para auxiliar e aponta para o primeiro nó da lista ja organizada
+                while (temporario.next is not None and 
+                    temporario.next.genero.lower() < current.genero.lower()): #vai percorrer a lista enquanto o proximo nó tiver um genero menor(ordem alfabetica) do que o do nó atual
+                    temporario = temporario.next
+                current.next = temporario.next
+                temporario.next = current #o current é encaixado logo depois do temporário, em ordem
             current = proximo  # avança para o próximo da lista original
 
         # Atualiza o head da lista
@@ -241,14 +241,14 @@ class SistemaClientes:
     def buscar_cliente(self,cpf):
         if cpf in self.clientes: #compara o cpf
             cliente=self.clientes[cpf]
-            print(f"Nome: {cliente.nome}/idade:{cliente.idade}/telefone:{cliente.telefone}")
-            '''print("Filmes alugados:")
+            print(f"Nome: {cliente.nome}/idade:{cliente.idade}/telefone:{cliente.telefone}") #vai mostrar os dados desse cliente
+            print("Filmes alugados:") #vai mostrar os filmes alugados por esse cliente específico
             if cliente.filmes_alugados:
-                for filme in cliente.filmes_alugados:
-                    print(f"  - {filme}")
+                for filme in cliente.filmes_alugados:#for para mostrar a lista dos filmes alugados
+                    print(f"  - {filme.titulo}")
             else:
                 print("  Nenhum filme alugado no momento.")
-            return cliente'''
+            return cliente
         else:
             print("Cliente não encontrado")
             return
@@ -259,60 +259,64 @@ class SistemaClientes:
         if not cliente:
             return
         current=lista_filmes.head
-        while current is not None:
-            if current.titulo==titulo:
-                if cliente.idade>=current.classificacao_indicativa:
-                    if current.situacao=="Disponivel":
-                        current.situacao= "Alugado"
+        while current is not None: #vai percorrer toda a lista
+            if current.titulo==titulo: #se o titulo do filme escolhido pelo cliente for encontrado (comparação dos títulos)
+                if cliente.idade>=current.classificacao_indicativa: #e se o cliente tem idade para alugar esse filme
+                    if current.situacao=="Disponivel": #e se a situação do filme está como 'Disponivel'
+                        current.situacao= "Alugado" #vai mudar a situação para 'Alugado'
                         cliente.filmes_alugados.append(current) #adicionando a lista de filmes alugados do cliente
-                        pilha_alugueis.push(current)
+                        pilha_alugueis.push(current) #adiciona na pilha dos filmes alugados recentemente
                         print(f"{cliente.nome} alugou o filme '{current.titulo}'-({current.codigo}) com sucesso!")
                     else:
-                        print(f"{current.titulo} não está disponível")
+                        print(f"{current.titulo} não está disponível") #o filme está alugado
                         print(f"Adicionando o cliente {cliente.nome} para a lista de reservas do filme '{current.titulo}'")
                         current.fila_reservas.adicionar_na_fila(cliente) #adicionando o cliente na fila de reservas
                 else:
-                    print("Você não possui idade para a classificação indicativa desse filme. Aluguel cancelado")
+                    print("Você não possui idade para a classificação indicativa desse filme. Aluguel cancelado") #a idade do cliente é menor que a classificação indicativa
                 return
-            current=current.next
+            current=current.next #percorrer os nós
         print("Filme não encontrado")
     
+    #Método para devolução do filme
     def devolver_filme(self,lista_filmes,cpf,titulo,codigo):
-        cliente=self.buscar_cliente(cpf)
+        cliente=self.buscar_cliente(cpf) #vai buscar o cliente
         current=lista_filmes.head
         while current is not None:
-            if current.titulo==titulo and current.codigo==codigo:
-                if current in cliente.filmes_alugados:
-                    cliente.filmes_alugados.remove(current)
+            if current.titulo==titulo and current.codigo==codigo: #vai comparar os títulos e os códigos
+                if current in cliente.filmes_alugados: 
+                    cliente.filmes_alugados.remove(current) #vai remover o filme da lista dos filmes alugados do cliente
 
-                    if not current.fila_reservas.is_empty():
-                        proximo_cliente=current.fila_reservas.retirar_da_fila()
-                        proximo_cliente.filmes_alugados.append(current)
+                    if not current.fila_reservas.is_empty(): #se a fila de reservas para esse filme não estiver vazia
+                        proximo_cliente=current.fila_reservas.retirar_da_fila() #o próximo cliente, por ordem de pedido, ficará com o filme
+                        proximo_cliente.filmes_alugados.append(current) #coloca na lista dos filmes alugados do próximo cliente
                         print(f"{cliente.nome} devolveu '{current.titulo}'.")
                         print(f"O filme foi reservado automaticamente para {proximo_cliente.nome}.")
-                    else:
-                        current.situacao="Disponivel"
+                    else: #caso não tenha nenhuma reserva
+                        current.situacao="Disponivel" #a situação do filme volta a ficar disponível
                         print(f"{cliente.nome} devolveu '{current.titulo}'. Agora está disponível para aluguel.")
-                else:
+                else: #o cliente não tem esse filme para devolver pois nçao está na sua lista de filmes alugados
                     print(f"O cliente {cliente.nome} não possui este filme alugado.")
                 return
             current=current.next
         print("Filme não encontrado")
 
-class Locadora: #Classe Principal que chama os métodos para a iteração com o usuário
+#Classe Principal Locadora
+class Locadora: 
     def __init__(self):
         self.lista = ListaDeFilmes()        # a lista única de filmes
         self.sistema = SistemaClientes() # sistema único de clientes
-        self.pilha_alugueis=Pilha()
+        self.pilha_alugueis=Pilha() #pilha única de filmes recentes
 
-        self.lista.inserir_filme("Paola e as aventuras","romance", "Lucas", 19,2023,"1234", "Disponivel")
-        self.lista.inserir_filme("o medo","Terror","Joao", 18,2001,"0987","Disponivel")
-        self.lista.inserir_filme("Velozes e Furiosos","Ação","Homem", 16,2010,"6789","Disponivel")
-        self.lista.inserir_filme("Amor","Drama","austin",10,2011,"6543","Disponivel")
-        self.lista.inserir_filme("socorro","Terror","ain",18,2021,"8726","Alugado")
-        
-           
+        #Inserindo filmes iniciais 
+        self.lista.inserir_filme("O amor não tira férias","Romance", "Nancy Meyers", 12,2006,"001", "Disponivel")
+        self.lista.inserir_filme("Matrix","Ficção Científica"," Lana Wachowskie Lilly Wachowski", 14,1999,"002","Disponivel")
+        self.lista.inserir_filme("Velozes e Furiosos","Ação","Rob Cohen", 14,2001,"003","Disponivel")
+        self.lista.inserir_filme("O Impossível","Drama","Juan Antonio Bayona",14,2012,"004","Disponivel")
+        self.lista.inserir_filme("A cinco passos de você","Romance","Justin Baldoni",12,2019,"005","Disponivel")
+        self.lista.inserir_filme("Jogo Justo","Romance"," Chloe Domont",18,2023,"006","Disponivel")
         return
+    
+    #Método para o menu dos clientes
     def menu_cliente(self):
         while True:
             print("                       *            MENU               *                          ")
@@ -325,54 +329,54 @@ class Locadora: #Classe Principal que chama os métodos para a iteração com o 
             "      S - Sair" \
             "       ")
             
-            
+            #Pedindo para o usuário inserir a opção que deseja
             opcaocliente=str(input("Digite uma opção para ter acesso as funções: "))
-            if opcaocliente.lower()=="a":
+            if opcaocliente.lower()=="a": #Alugar filme
                 titulo=str(input("Digite o título do filme: "))
                 cpf=str(input("Digite seu CPF: "))
                 codigo=str(input("Digite o código do filme:"))
-                alugar=self.sistema.alugar_filme(self.lista,cpf,titulo,codigo,self.pilha_alugueis)
+                alugar=self.sistema.alugar_filme(self.lista,cpf,titulo,codigo,self.pilha_alugueis)#método alugar sendo utilizado
 
-            elif opcaocliente.lower()=="l":
-                listar=self.lista.listar_por_genero()
+            elif opcaocliente.lower()=="l": #Listar filmes 
+                listar=self.lista.listar_por_genero() #Método listar por gênero, vai pedir para o usuário inserir o gênero
 
-            elif opcaocliente.lower()=="d" :
+            elif opcaocliente.lower()=="d" : #Devolver filme
                 cpf1=str(input("Digite seu CPF: "))
                 titulo1=str(input("Digite o título do filme que deseja devolver: "))
                 codigo1=str(input("Código do filme: "))
-                devolver=self.sistema.devolver_filme(self.lista,cpf1,titulo1,codigo1) 
+                devolver=self.sistema.devolver_filme(self.lista,cpf1,titulo1,codigo1) #Método devolver
 
-            elif opcaocliente.lower()=="f":
+            elif opcaocliente.lower()=="f": #Ver fila de reservas para determinado filme
                     titulo3=str(input("Digite o título do filme: "))
                     genero=str(input("Digite o gênero do filme: "))
                     filme=self.lista.buscar_filme(titulo3,genero)
                     if filme:
-                        reservas = filme.fila_reservas.mostrar_filmes_reservas()
-                        if reservas:
+                        reservas = filme.fila_reservas.mostrar_filmes_reservas() #método de mostrar a fila de reserva
+                        if reservas: #se tiver reservas
                             print( (f"\nFila de reservas para o filme '{filme.titulo}':"))
-                            for i, cliente in enumerate(reservas, start=1):
+                            for i, cliente in enumerate(reservas, start=1): #vai mostrar a ordem em que o cliente está na fila
                                 print(f"{i}º - {cliente.nome} (CPF: {cliente.cpf})")
                         else:
                             print("Não há reservas para este filme.")
                     else:
                         print("Filme não encontrado.")
 
-
-            elif opcaocliente.lower()=="b":
+            elif opcaocliente.lower()=="b": #Pesquisar determinado filme
                 titulo2=str(input("Digite o título do filme que deseja pesquisar: "))
                 genero2=str(input("Digite o gênero do filme: "))
-                buscarfilme=self.lista.buscar_filme(titulo2,genero2)
+                buscarfilme=self.lista.buscar_filme(titulo2,genero2) #Método buscar sendo chamado
 
-            elif opcaocliente.lower()=="i":
+            elif opcaocliente.lower()=="i": #vai voltar para a tela inicial para outros clientes utilizarem o sistema
                 return self.inicio()
             
-            elif opcaocliente.lower()=="s":
+            elif opcaocliente.lower()=="s": #vai fechar o sistema
                 print("Saindo do sitema...")
-                break
+                break #vai parar o while
 
             else:
                 print("Opção inválida")
 
+    #Método do menu do funcionário com mais opções
     def menu_funcionario(self):
         print("*                *               *    MENU - SISTEMA INTERNO    *                *              * ")
         print("I - Inserir filme" \
@@ -385,23 +389,23 @@ class Locadora: #Classe Principal que chama os métodos para a iteração com o 
         "      P - Ver últimos 5 filmes alugados" \
         "      S - Sair")
         
-
+    #Método do início do sistema, programa principal
     def inicio (self):
         print()
         print(" ----------------------------------------------")
         print("                 LOCADORA PH                   ")
         print("-----------------------------------------------")
         print()
-        entrada=str(input("Bem vindo!Já possui cadastro?[S/N]"))
+        entrada=str(input("Bem vindo!Já possui cadastro?[S/N]")) #pergunta se tem cadastro na Locadora
         if entrada.lower()=="s":
             usuario=str(input("Digite seu CPF: "))
-            if usuario== "139778": #Se tiver esse cpf é funcionário da livraria
+            if usuario== "139778": #Se tiver esse cpf é funcionário da livraria 
                 while True:
                     print()
-                    funcionario=self.menu_funcionario()
+                    funcionario=self.menu_funcionario() #vai abrir o menu do funcionário
                     opcaofuncionario=str(input(" Escolha uma opção para navegar no Sistema da Locadora: "))
                     print()
-                    if opcaofuncionario.lower()=="i":
+                    if opcaofuncionario.lower()=="i": #Inserir novos filmes pedindo todos os atributos
                         print( "           CADASTRO DE FILMES         ")
                         titulo=str(input(" Insira o Título: "))
                         genero=str(input(" Insira o gênero: "))
@@ -410,24 +414,24 @@ class Locadora: #Classe Principal que chama os métodos para a iteração com o 
                         ano=int(input(" Insira o ano de lançamento: "))
                         codigo=str(input(" Insira o código do filme: "))
                         situacao=str(input(" Situação do filme: "))
-                        inserir=self.lista.inserir_filme(titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao)
+                        inserir=self.lista.inserir_filme(titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao) #Método inserir sendo chamado
                         
-                    elif opcaofuncionario.lower()=="r":
+                    elif opcaofuncionario.lower()=="r": #Remover o filme da lista da locadora
                         codigo=str(input("Digite o código do filme que deseja remover: "))
-                        remover=self.lista.remover_filme(codigo)
+                        remover=self.lista.remover_filme(codigo) #método remover sendo chamado
 
-                    elif opcaofuncionario.lower()=="b":
+                    elif opcaofuncionario.lower()=="b": #Buscar cliente com base no CPF
                         cpf=str(input("Digite o CPF do cliente que deseja pesquisar: "))
-                        buscar=self.sistema.buscar_cliente(cpf)
+                        buscar=self.sistema.buscar_cliente(cpf) #Método buscar cliente sendo chamado
                         
-                    elif opcaofuncionario.lower()=="f":
+                    elif opcaofuncionario.lower()=="f": #Ver fila de reserva do filme
                         titulo3=str(input("Digite o título do filme: "))
                         genero=str(input("Digite o gênero do filme: "))
-                        filme=self.lista.buscar_filme(titulo3,genero)
+                        filme=self.lista.buscar_filme(titulo3,genero) #Método buscar sendo chamado
                         if filme:
-                            reservas = filme.fila_reservas.mostrar_filmes_reservas()
-                            if reservas:
-                                print( (f"\nFila de reservas para o filme '{filme.titulo}':"))
+                            reservas = filme.fila_reservas.mostrar_filmes_reservas() #método de mostrar a fila de reserva
+                            if reservas: #se tiver reserva
+                                print( (f"\nFila de reservas para o filme '{filme.titulo}':")) #mostra os clientes por ordem
                                 for i, cliente in enumerate(reservas, start=1):
                                     print(f"{i}º - {cliente.nome} (CPF: {cliente.cpf})")
                             else:
@@ -435,44 +439,44 @@ class Locadora: #Classe Principal que chama os métodos para a iteração com o 
                         else:
                             print("Filme não encontrado.")
 
-                    elif opcaofuncionario.lower()=="l":
-                        titulo1=str(input("Digite o Título do filme:"))
+                    elif opcaofuncionario.lower()=="l": #Buscar livro com base no titulo e gênero
+                        titulo1=str(input("Digite o Título do filme:")) 
                         genero=str(input("Digite o gênero do filme: "))
-                        buscarlivro=self.lista.buscar_filme(titulo1,genero)
+                        buscarlivro=self.lista.buscar_filme(titulo1,genero) #Método buscar filme sendo chamado
 
-                    elif opcaofuncionario.lower()=="li":
-                        mostrar=self.lista.mostrar()
+                    elif opcaofuncionario.lower()=="li": #vai listar todos os filmes independente de gênero
+                        mostrar=self.lista.mostrar() #Método mostrar sendo chamado
                         
-                    elif opcaofuncionario.lower()=="o":
-                        ordenar=self.lista.ordenar_por_genero()
+                    elif opcaofuncionario.lower()=="o": #Ordenar por gênero
+                        ordenar=self.lista.ordenar_por_genero() #Método ordenar sendo chamado
 
-                    elif opcaofuncionario.lower()=="p":
-                        self.pilha_alugueis.mostrar_cinco_ultimos()
+                    elif opcaofuncionario.lower()=="p": #Mostrar os 5 aluguéis recente
+                        self.pilha_alugueis.mostrar_cinco_ultimos() #Método sendo chamado
                         
-                    elif opcaofuncionario.lower()=="s":
+                    elif opcaofuncionario.lower()=="s": #Sair do sistema do funcionário
                         print("Saindo do sistema do funcionário...")
-                        return self.inicio()
+                        return self.inicio() #voltar para a tela inicial
                     else:
                         print("Opção inválida")
 
             elif usuario in self.sistema.clientes:
-                self.menu_cliente()
-        elif entrada.lower()=="n":
+                self.menu_cliente() #vai mostrar o menu dos clientes
+        elif entrada.lower()=="n": #vai fazer o cadastro do usuário
             print()
             print("               CADASTRO DE USUÁRIO           ")
             nome=str(input("Digite seu nome e sobrenome: "))
             idade=int(input("Digite sua idade: "))
             telefone=str(input("Digite seu número de celular para contato: "))
             cpf=str(input("Digite seu CPF: "))
-            cliente1=self.sistema.adicionar_cliente(nome,idade,telefone,cpf)
-            cliente1=self.menu_cliente()
+            cliente1=self.sistema.adicionar_cliente(nome,idade,telefone,cpf) #método adicionar cliente sendo chamado
+            cliente1=self.menu_cliente() #vai mostrar o menu do cliente
         else:
             print("Opção inválida")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": #Para rodar o programa
     sistema_locadora = Locadora()
-    sistema_locadora.sistema.adicionar_cliente("Paola Coutinho", 19, "998668644", "139778")
+    sistema_locadora.sistema.adicionar_cliente("Paola Coutinho", 19, "998668644", "139778") #Funcionário 
     sistema_locadora.inicio()
     
 
