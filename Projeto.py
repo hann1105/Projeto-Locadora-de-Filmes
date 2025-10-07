@@ -95,7 +95,10 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
         while current is not None:# enquanto o current não chega ao fim da lista
             proximo = current.next  # guarda o próximo nó antes de desconectar
             # Inserção na lista ordenada
-            if lista_ordenada is None or current.genero.lower() < lista_ordenada.genero.lower(): #vai comparar os gêneros do nó do current para o nó da lista ordenada
+            if (lista_ordenada is None or 
+            current.genero.lower() < lista_ordenada.genero.lower() or
+            (current.genero.lower() == lista_ordenada.genero.lower() and 
+             current.titulo.lower() < lista_ordenada.titulo.lower())): #vai comparar os gêneros do nó do current para o nó da lista ordenada
                 # insere no início
                 current.next = lista_ordenada #o nó atual aponta para o antigo inicio
                 lista_ordenada = current #atualiza o novo início
@@ -103,7 +106,9 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
                 # percorre a lista ordenada até achar o ponto de inserção
                 temporario = lista_ordenada #temporario é um ponteiro temporario para auxiliar e aponta para o primeiro nó da lista ja organizada
                 while (temporario.next is not None and 
-                    temporario.next.genero.lower() < current.genero.lower()): #vai percorrer a lista enquanto o proximo nó tiver um genero menor(ordem alfabetica) do que o do nó atual
+                  (temporario.next.genero.lower() < current.genero.lower() or
+                   (temporario.next.genero.lower() == current.genero.lower() and 
+                    temporario.next.titulo.lower() < current.titulo.lower()))):#vai percorrer a lista enquanto o proximo nó tiver um genero menor(ordem alfabetica) do que o do nó atual
                     temporario = temporario.next
                 current.next = temporario.next
                 temporario.next = current #o current é encaixado logo depois do temporário, em ordem
