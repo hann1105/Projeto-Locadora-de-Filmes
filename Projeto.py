@@ -1,5 +1,6 @@
-class Node:
-    def __init__(self,titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao):
+class Node: #classe Node para a lista encadeada dos filmes
+    def __init__(self,titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao): # cada filme é constituído por esses atributos
+        #Atributos dos filmes
         self.titulo=titulo
         self.genero=genero
         self.diretor=diretor
@@ -7,31 +8,33 @@ class Node:
         self.ano=ano
         self.codigo=codigo
         self.situacao=situacao
-        self.fila_reservas=FilaDeReservas()
-        self.next=None
+        self.fila_reservas=FilaDeReservas() #cada filme terá sua própria Fila de reservas, para assim ficar organizado no processo de aluguel quando um filme já estiver Alugado
+        self.next=None #ponteiro next 
 
-class ListaDeFilmes:
+class ListaDeFilmes: #classe para Lista encadeada de filmes
     def __init__(self):
         self.head=None
     
-    def inserir_filme(self,titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao):
+    #Método para inserir filmes na lista
+    def inserir_filme(self,titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao): 
         
         new_filme=Node(titulo,genero,diretor,classificacao_indicativa,ano,codigo,situacao)
 
-        if self.head is None:
+        if self.head is None: # se a cabeça for fazia, o novo filme será a cabeça
             self.head=new_filme
             print("Filme adicionado com sucesso!")
-        else:
-            current=self.head
+        else: # caso não
+            current=self.head  #o ponteiro current irá pecorrer toda a lista enquanto não for None, quando chegar a esse nó None, ele irá adicionar o novo filme
             while current.next is not None:
                 current=current.next
             current.next=new_filme
             print("Filme adicionado com sucesso!")
 
+    #Método para buscar filme de acordo com o título e o gênero
     def buscar_filme(self,titulo,genero):
-        current=self.head
-        while current is not None:
-            if current.titulo == titulo and current.genero==genero:
+        current=self.head #ponteiro começa do primeiro nó da lista
+        while current is not None: #percorre toda a lista
+            if current.titulo == titulo and current.genero==genero: # compara se o título e o gênero do filme do nó é igual ao filme procurado
                 print(f"Titulo: {current.titulo} ")
                 print(f"Gênero: {current.genero}")
                 print(f"Diretor: {current.diretor}")
@@ -41,127 +44,152 @@ class ListaDeFilmes:
                 print(f"Situação: {current.situacao}")
                 return current
             current=current.next
-        print("Filme não encontrado")
+        print("Filme não encontrado") #não encontrou 
         return None
     
+    #Método mostrar os filmes (menu do funcionário para ter maior controle)
     def mostrar(self):
-        current=self.head
+        current=self.head #começa do primeiro nó
         while current is not None:
-            print(f"{current.genero}: {current.titulo}")
+            print(f"{current.genero}: {current.titulo}") #Mostra o gênero e o filme
             current=current.next
 
+    #Método listar, vai listar os filmes por determinado gênero escolhido
     def listar_por_genero(self):
         genero=str(input("Digite o gênero para listar os filmes disponíveis: "))
         print(f"Filmes - {genero}")
         current=self.head
-        while current is not None:
-            if current.genero==genero:
+        while current is not None: #percorre a lista toda
+            if current.genero==genero: #compara se o gênero do nó corresponde ao nó escolhido pelo usuário
                 print(f"{current.titulo}")
                 return 
             current=current.next
         print("Não há filmes para esse gênero")
         return
 
-    def remover_filme(self,codigo):
+    #Método para remover filmes (menu do funcionário)
+    def remover_filme(self,codigo): #vai remover o filme de acordo com o código dele
         if self.head is None:
             print("Lista vazia")
             return
-        if self.head.codigo==codigo:
-            self.head=self.head.next
+        if self.head.codigo==codigo: #se o filme a ser removido for o da cabeça
+            self.head=self.head.next #vai pular a cabeça e a nova cabeça vai ser o next 
             print("Filme removido com sucesso")
             return
-        current=self.head
-        while current.next is not None and current.next.codigo!=codigo:
+        current=self.head #caso não seja o filme da cabeça, o current vai percorrer a lista enquanto não for None
+        while current.next is not None and current.next.codigo!=codigo: # e enquanto o código for diferente do código inserido pelo usuário
             current=current.next
             print("Filme removido com sucesso!")
-        if current.next is not None:
+        if current.next is not None: #se tiver mais filmes depois do removido, ele irá pular para o próximo nó
             current.next=current.next.next
     
+    # Método de Ordenação por gênero com base no Insertion Sort
     def ordenar_por_genero(self):
-        if self.head is None or self.head.next is None:
+        if self.head is None or self.head.next is None: #se a lista estiver vazia ou só tem um filme não há o que ordenar
             return
-        trocou=True #bubble short para a ordenação
-        while trocou:
-            trocou=False
-            current=self.head
-            while current.next:
-                if current.genero>current.next.genero:
-                    current.titulo,current.next.titulo=current.next.titulo,current.titulo
-                    current.genero,current.next.genero=current.next.genero,current.genero
-                    current.diretor,current.next.diretor=current.next.diretor,current.diretor
-                    current.classificacao_indicativa,current.next.classificacao_indicativa=current.next.classificacao_indicativa,current.classificacao_indicativa
-                    current.ano,current.next.ano=current.next.ano,current.ano
-                    current.codigo,current.next.codigo=current.next.codigo,current.codigo
-                    current.situacao,current.next.situacao=current.next.situacao,current.situacao
-                    trocou=True       
-                current=current.next
-        print("\nFilmes ordenados por gênero:")
-        current=self.head
-        while current is not None: # para mostrar a lista ordenada
-            print(f"{current.genero}: {current.titulo}")
-            current=current.next
 
+        # Novo início da lista ordenada
+        lista_ordenada = None  
+        current = self.head
+
+        while current is not None:# enquanto o current não chega ao fim da lista
+            proximo = current.next  # guarda o próximo nó antes de desconectar
+            # Inserção na lista ordenada
+            if lista_ordenada is None or current.genero.lower() < lista_ordenada.genero.lower(): #vai comparar os gêneros do nó do current para o nó da lista ordenada
+                # insere no início
+                current.next = lista_ordenada
+                lista_ordenada = current
+            else:
+                # percorre a lista ordenada até achar o ponto de inserção
+                temp = lista_ordenada
+                while (temp.next is not None and 
+                    temp.next.genero.lower() < current.genero.lower()):
+                    temp = temp.next
+                current.next = temp.next
+                temp.next = current
+            current = proximo  # avança para o próximo da lista original
+
+        # Atualiza o head da lista
+        self.head = lista_ordenada
+
+        # Exibe os filmes ordenados
+        print("\nFilmes ordenados por gêneros:")
+        current = self.head
+        while current:
+            print(f"{current.genero}: {current.titulo}")
+            current = current.next
+
+#class Node para a Pilha com lista encadeada
 class NodePilha:
     def __init__(self,filme):
         self.filme=filme
-        self.next=None
+        self.next=None #ponteiro next para percorrer os nós
 
+#class Pilha
 class Pilha:
     def __init__(self):
         self.topo=None
         self.tamanho=0
 
+    #Método para inserir o filme na pilha
     def push(self,filme):
-        new_node=NodePilha(filme)
+        new_node=NodePilha(filme) 
         new_node.next=self.topo
-        self.topo=new_node
+        self.topo=new_node #o topo vai ser o novo filme adicionado ()LIFO
         self.tamanho+=1
-
+ 
+    #Método para ver se a pilha está vazia
     def is_empty(self):
         return self.tamanho==0
 
+    #Método para mostrar os cinco filmes alugados recentemente
     def mostrar_cinco_ultimos(self):
-        if self.is_empty():
+        if self.is_empty(): #Se a pilha está vazia, nenhum filme foi alugado 
             print("Nenhum filme foi alugado recentemente")
         print("Os 5 último filmes alugados foram:")
-        current=self.topo
-        contador=0
-        while current is not None and contador<5:
-            print(f"{current.filme.titulo} - {current.filme.genero}")
+        current=self.topo #começa no primeiro nó
+        contador=0 #contador para ser até 5
+        while current is not None and contador<5: #enquanto current não for None e contador for menor que 5
+            print(f"{current.filme.titulo} - {current.filme.genero}") #vai mostrar o título e o gênero
             current=current.next
             contador+=1
         return
 
+#classe Node para a fila encadeada de reserva
 class NodeFila:
     def __init__(self,cliente):
         self.cliente=cliente
         self.next=None
 
+#classe para a fila de reserva dos filmes
 class FilaDeReservas: #em adicionar, vai chamar cliente, pois ele que vai ficar na fila de reserva e não o filme
     def __init__(self): #ja que cada filme ja terá sua própria lista de reservas
         self.front=None
         self._size=0
     
+    #Método para adicionar o cliente na fila de reserva de determinado filme, quando este estiver já em situação de alugado
     def adicionar_na_fila(self,cliente):
         new_fila=NodeFila(cliente)
-        if self.front is None:
+        if self.front is None: #se a fila está vazia, o novo nó será a 'cabeça'
             self.front=new_fila
-        else:
-            current=self.front
-            while current.next is not None:
+        else: #caso não
+            current=self.front 
+            while current.next is not None: #vai percorrer toda a fila
                 current=current.next
-            current.next=new_fila
+            current.next=new_fila #e adicionar no final 
         self._size+=1
 
+    #Método para retirar da fila de reserva do filme, irá ser utilizado quando o livro for devolvido e o cliente que está a espera do filme, receberá o livro e sairá da fila
     def retirar_da_fila(self):
         if self.is_empty():
             print("Fila de reserva vazia")
             return
-        cliente=self.front.cliente
-        self.front=self.front.next
+        cliente=self.front.cliente #vai guardar o cliente no front
+        self.front=self.front.next #vai pular e remover esse cliente e o próximo será o novo front, na ordem (FIFO)
         self._size-=1
         return cliente
 
+    #Método para retornar o primeiro da fila
     def peek(self):
         if self.is_empty():
             print("Fila de reserva vazia")
@@ -169,54 +197,66 @@ class FilaDeReservas: #em adicionar, vai chamar cliente, pois ele que vai ficar 
         print(self.front.cliente) 
         return
 
+    #Método para mostrar o tamanho
     def size(self):
         return self._size
-    
+
+    #Método para ver se a fila está vazia    
     def is_empty(self):
         return self._size==0
                
-
+    #Método para mostrar a fila de clientes para determinado filme
     def mostrar_filmes_reservas(self):
-        clientes_fila=[]
+        clientes_fila=[] #lista para colocar os clientes da fila
         current=self.front
         while current is not None:
             clientes_fila.append(current.cliente)
             current=current.next
         return clientes_fila
 
+#Classe dos clientes
 class Cliente:
     def __init__(self,nome,idade,telefone,cpf):
+        #Atributos de cada cliente
         self.nome=nome
-        self.idade=idade
-        self.telefone=telefone
+        self.idade=idade #a idade é um atributo a ser pedido pois, se determinado cliente não tiver a idade mínima
+        self.telefone=telefone  #para alugar o filme, de acordo com a classificação indicativa dele, o aluguel não é permitido
         self.cpf=cpf
-        self.filmes_alugados=[]
+        self.filmes_alugados=[] #lista para mostrar os filmes alugados do cliente
 
+#Classe para as operações que o cliente pode ter
 class SistemaClientes:
     def __init__(self):
-        self.clientes={} #dicionário para clientes
+        self.clientes={} #dicionário para clientes, para facilitar a procura, inserção e remoção
 
+    #Método para adicionar o cliente para o sistema da locadora
     def adicionar_cliente(self,nome,idade,telefone,cpf):
-        if cpf in self.clientes:
+        if cpf in self.clientes: #procura se o cliente já é cadastrado
             print("Usuário já cadastrado")
-        else:
-
+        else: #caso não, adiciona o cliente no dicionário
             self.clientes[cpf]=Cliente(nome,idade,telefone,cpf)
             print("Cliente adicionado com sucesso")
 
+    #Método para buscar clientes pelo cpf
     def buscar_cliente(self,cpf):
-        if cpf in self.clientes:
+        if cpf in self.clientes: #compara o cpf
             cliente=self.clientes[cpf]
             print(f"Nome: {cliente.nome}/idade:{cliente.idade}/telefone:{cliente.telefone}")
-            return cliente
+            '''print("Filmes alugados:")
+            if cliente.filmes_alugados:
+                for filme in cliente.filmes_alugados:
+                    print(f"  - {filme}")
+            else:
+                print("  Nenhum filme alugado no momento.")
+            return cliente'''
         else:
             print("Cliente não encontrado")
             return
     
+    #Método para o cliente alugar o filme
     def alugar_filme(self,lista_filmes,cpf,titulo,codigo,pilha_alugueis): #lista_filmes é o objeto que será criado da classe ListaDeFilmes
-        cliente=self.buscar_cliente(cpf)
+        cliente=self.buscar_cliente(cpf) #confirma se é cliente para poder alugar
         if not cliente:
-            #print("Cliente não encontrado")
             return
         current=lista_filmes.head
         while current is not None:
@@ -435,18 +475,4 @@ if __name__ == "__main__":
     sistema_locadora.sistema.adicionar_cliente("Paola Coutinho", 19, "998668644", "139778")
     sistema_locadora.inicio()
     
-
-
-
-"""print("Antes de ordenar por genero")
-lista.mostrar()
-#lista.listar_por_genero()
-#lista.buscar_filme("o medo", "Terror")
-#lista.remover_filme(1234)
-#lista.listar_por_genero()
-lista.ordenar_por_genero()
-print("-------------------------------")
-print("Depois de ordenar por genero")
-lista.mostrar()"""
-
 
