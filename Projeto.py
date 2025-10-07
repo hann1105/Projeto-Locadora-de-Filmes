@@ -62,9 +62,10 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
         while current is not None: #percorre a lista toda
             if current.genero==genero: #compara se o gênero do nó corresponde ao nó escolhido pelo usuário
                 print(f"{current.titulo}")
-                return 
+                encontrou=True
             current=current.next
-        print("Não há filmes para esse gênero")
+        if not encontrou:
+            print("Não há filmes para esse gênero")
         return
 
     #Método para remover filmes (menu do funcionário)
@@ -98,7 +99,7 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
             if (lista_ordenada is None or 
             current.genero.lower() < lista_ordenada.genero.lower() or
             (current.genero.lower() == lista_ordenada.genero.lower() and 
-             current.titulo.lower() < lista_ordenada.titulo.lower())): #vai comparar os gêneros do nó do current para o nó da lista ordenada e se mais de um filme tiver o mesmo GÊNERO, vai ordenar pelo titulo
+             current.titulo.lower() < lista_ordenada.titulo.lower())): #vai comparar os gêneros do nó do current para o nó da lista ordenada
                 # insere no início
                 current.next = lista_ordenada #o nó atual aponta para o antigo inicio
                 lista_ordenada = current #atualiza o novo início
@@ -109,7 +110,7 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
                   (temporario.next.genero.lower() < current.genero.lower() or
                    (temporario.next.genero.lower() == current.genero.lower() and 
                     temporario.next.titulo.lower() < current.titulo.lower()))):#vai percorrer a lista enquanto o proximo nó tiver um genero menor(ordem alfabetica) do que o do nó atual
-                    temporario = temporario.next
+                    temporario = temporario.next #e se masi de um filme tiver o mesmo gênero, ele ordenará o título dos gêneros
                 current.next = temporario.next
                 temporario.next = current #o current é encaixado logo depois do temporário, em ordem
             current = proximo  # avança para o próximo da lista original
@@ -484,5 +485,4 @@ if __name__ == "__main__": #Para rodar o programa
     sistema_locadora.sistema.adicionar_cliente("Paola Coutinho", 19, "998668644", "139778") #Funcionário 
     sistema_locadora.inicio()
     
-
 
