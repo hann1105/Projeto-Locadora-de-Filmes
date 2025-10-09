@@ -80,7 +80,7 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
         current=self.head #caso não seja o filme da cabeça, o current vai percorrer a lista enquanto não for None
         while current.next is not None and current.next.codigo!=codigo: # e enquanto o código for diferente do código inserido pelo usuário
             current=current.next
-            print("Filme removido com sucesso!")
+        print("Filme removido com sucesso!")
         if current.next is not None: #se tiver mais filmes depois do removido, ele irá pular para o próximo nó
             current.next=current.next.next
     
@@ -90,8 +90,8 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
             return
 
         # Novo início da lista ordenada
-        lista_ordenada = None  
-        current = self.head
+        lista_ordenada = None  #ponteiro para a nova lista ordenada
+        current = self.head #começa do head da lista original
 
         while current is not None:# enquanto o current não chega ao fim da lista
             proximo = current.next  # guarda o próximo nó antes de desconectar
@@ -101,7 +101,7 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
             (current.genero.lower() == lista_ordenada.genero.lower() and 
              current.titulo.lower() < lista_ordenada.titulo.lower())): #vai comparar os gêneros do nó do current para o nó da lista ordenada
                 # insere no início
-                current.next = lista_ordenada #o nó atual aponta para o antigo inicio
+                current.next = lista_ordenada #o nó atual aponta para o antigo inicio, Insere current no começo da lista ordenada
                 lista_ordenada = current #atualiza o novo início
             else: #inserção no meio ou final
                 # percorre a lista ordenada até achar o ponto de inserção
@@ -110,7 +110,7 @@ class ListaDeFilmes: #classe para Lista encadeada de filmes
                   (temporario.next.genero.lower() < current.genero.lower() or
                    (temporario.next.genero.lower() == current.genero.lower() and 
                     temporario.next.titulo.lower() < current.titulo.lower()))):#vai percorrer a lista enquanto o proximo nó tiver um genero menor(ordem alfabetica) do que o do nó atual
-                    temporario = temporario.next #e se masi de um filme tiver o mesmo gênero, ele ordenará o título dos gêneros
+                    temporario = temporario.next #e se mais de um filme tiver o mesmo gênero, ele ordenará o título dos gêneros
                 current.next = temporario.next
                 temporario.next = current #o current é encaixado logo depois do temporário, em ordem
             current = proximo  # avança para o próximo da lista original
@@ -141,7 +141,7 @@ class Pilha:
     def push(self,filme):
         new_node=NodePilha(filme) 
         new_node.next=self.topo
-        self.topo=new_node #o topo vai ser o novo filme adicionado ()LIFO
+        self.topo=new_node #o topo vai ser o novo filme adicionado (LIFO)
         self.tamanho+=1
  
     #Método para ver se a pilha está vazia
@@ -300,7 +300,7 @@ class SistemaClientes:
                     else: #caso não tenha nenhuma reserva
                         current.situacao="Disponivel" #a situação do filme volta a ficar disponível
                         print(f"{cliente.nome} devolveu '{current.titulo}'. Agora está disponível para aluguel.")
-                else: #o cliente não tem esse filme para devolver pois nçao está na sua lista de filmes alugados
+                else: #o cliente não tem esse filme para devolver pois não está na sua lista de filmes alugados
                     print(f"O cliente {cliente.nome} não possui este filme alugado.")
                 return
             current=current.next
@@ -342,10 +342,10 @@ class Locadora:
                 cpf=str(input("Digite seu CPF: "))
                 codigo=str(input("Digite o código do filme:"))
                 alugar=self.sistema.alugar_filme(self.lista,cpf,titulo,codigo,self.pilha_alugueis)#método alugar sendo utilizado
-
+                
             elif opcaocliente.lower()=="l": #Listar filmes 
                 listar=self.lista.listar_por_genero() #Método listar por gênero, vai pedir para o usuário inserir o gênero
-
+                
             elif opcaocliente.lower()=="d" : #Devolver filme
                 cpf1=str(input("Digite seu CPF: "))
                 titulo1=str(input("Digite o título do filme que deseja devolver: "))
@@ -376,7 +376,7 @@ class Locadora:
                 return self.inicio()
             
             elif opcaocliente.lower()=="s": #vai fechar o sistema
-                print("Saindo do sitema...")
+                print("Saindo do sistema...")
                 break #vai parar o while
 
             else:
@@ -442,8 +442,8 @@ class Locadora:
                                     print(f"{i}º - {cliente.nome} (CPF: {cliente.cpf})")
                             else:
                                 print("Não há reservas para este filme.")
-                        else:
-                            print("Filme não encontrado.")
+                        #else:
+                         #   print("Filme não encontrado.")
 
                     elif opcaofuncionario.lower()=="l": #Buscar livro com base no titulo e gênero
                         titulo1=str(input("Digite o Título do filme:")) 
